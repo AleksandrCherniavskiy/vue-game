@@ -1,10 +1,12 @@
 <template>
   <div class="container">
     <div class="controls">
-      <div>{{stepCounter}} moves</div>
-      <button @click="start">Start</button>
-      <button>Reset</button>
-
+      <div class="controls__item">{{ moves }} moves</div>
+      <button class="controls__item controls__item_btn" @click="start"
+              v-if="!gameStarted">Start
+      </button>
+      <button class="controls__item controls__item_btn" @click="reset" v-else>Reset</button>
+      <Timer class="controls__item" :timerEvent="timerEvent"></Timer>
     </div>
     <div class="board">
       <Card v-for="card in cardsArray"
@@ -16,84 +18,94 @@
       </Card>
     </div>
   </div>
-<!--  <img alt="Vue logo" src="./assets/logo.png">-->
-<!--  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>-->
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from './components/HelloWorld.vue';
-import Card from './components/Card.vue';
-import {CardItem} from "@/models/cardItem";
+  import {Options, Vue} from 'vue-class-component';
+  import Card from './components/Card.vue';
+  import {CardItem} from "@/models/cardItem";
+  import Timer from '@/components/Timer.vue';
 
-@Options({
-  components: {
-    HelloWorld,
-    Card
-  },
-})
-export default class App extends Vue {
-  cardsArray: CardItem[] = [
-    {id: 1, value: 1, isGuessed: false, isPreviewed: false},
-    {id: 2, value: 2, isGuessed: false, isPreviewed: false},
-    {id: 3, value: 3, isGuessed: false, isPreviewed: false},
-    {id: 4, value: 4, isGuessed: false, isPreviewed: false},
-    {id: 5, value: 5, isGuessed: false, isPreviewed: false},
-    {id: 6, value: 6, isGuessed: false, isPreviewed: false},
-    {id: 7, value: 8, isGuessed: false, isPreviewed: false},
-    {id: 8, value: 10, isGuessed: false, isPreviewed: false},
-    {id: 9, value: 9, isGuessed: false, isPreviewed: false},
-    {id: 10, value: 7, isGuessed: false, isPreviewed: false},
-    {id: 11, value: 10, isGuessed: false, isPreviewed: false},
-    {id: 12, value: 8, isGuessed: false, isPreviewed: false},
-    {id: 13, value: 9, isGuessed: false, isPreviewed: false},
-    {id: 14, value: 7, isGuessed: false, isPreviewed: false},
-    {id: 15, value: 6, isGuessed: false, isPreviewed: false},
-    {id: 16, value: 5, isGuessed: false, isPreviewed: false},
-    {id: 17, value: 4, isGuessed: false, isPreviewed: false},
-    {id: 18, value: 3, isGuessed: false, isPreviewed: false},
-    {id: 19, value: 2, isGuessed: false, isPreviewed: false},
-    {id: 20, value: 1, isGuessed: false, isPreviewed: false},
-  ];
-  private disableCardClick = true;
-  private previewIndexArray: number[] = [];
-  // private previewCounter = 0;
-  private stepCounter = 0;
+  @Options({
+    components: {
+      Card,
+      Timer
+    },
+  })
 
-  start() {
-    this.disableCardClick = false;
-  }
+  export default class App extends Vue {
+    cardsArray: CardItem[] = [
+      {id: 1, value: 1, isGuessed: false, isPreviewed: false},
+      {id: 2, value: 2, isGuessed: false, isPreviewed: false},
+      {id: 3, value: 3, isGuessed: false, isPreviewed: false},
+      {id: 4, value: 4, isGuessed: false, isPreviewed: false},
+      {id: 5, value: 5, isGuessed: false, isPreviewed: false},
+      {id: 6, value: 6, isGuessed: false, isPreviewed: false},
+      {id: 7, value: 8, isGuessed: false, isPreviewed: false},
+      {id: 8, value: 10, isGuessed: false, isPreviewed: false},
+      {id: 9, value: 9, isGuessed: false, isPreviewed: false},
+      {id: 10, value: 7, isGuessed: false, isPreviewed: false},
+      {id: 11, value: 10, isGuessed: false, isPreviewed: false},
+      {id: 12, value: 8, isGuessed: false, isPreviewed: false},
+      {id: 13, value: 9, isGuessed: false, isPreviewed: false},
+      {id: 14, value: 7, isGuessed: false, isPreviewed: false},
+      {id: 15, value: 6, isGuessed: false, isPreviewed: false},
+      {id: 16, value: 5, isGuessed: false, isPreviewed: false},
+      {id: 17, value: 4, isGuessed: false, isPreviewed: false},
+      {id: 18, value: 3, isGuessed: false, isPreviewed: false},
+      {id: 19, value: 2, isGuessed: false, isPreviewed: false},
+      {id: 20, value: 1, isGuessed: false, isPreviewed: false},
+    ];
+    private disableCardClick = true;
+    private previewIndexArray: number[] = [];
+    private gameStarted = false;
+    private moves = 0;
+    private timerEvent = '';
 
-  onCardSelect(id: number) {
-    const cardIndex = this.cardsArray.findIndex(item => item.id === id);
-    this.previewIndexArray.push(cardIndex);
-
-    if (!this.cardsArray[cardIndex].isGuessed && !this.cardsArray[cardIndex].isPreviewed) {
-      this.cardsArray[cardIndex].isPreviewed = true;
-      // this.previewCounter++;
-      if (this.previewIndexArray.length === 2) {
-        this.disableCardClick = true;
-        this.stepCounter++;
-        const card1: CardItem = this.cardsArray[this.previewIndexArray[0]];
-        const card2: CardItem = this.cardsArray[this.previewIndexArray[1]];
-        if (card1.value === card2.value) {
-          setTimeout(() => {
-            card1.isGuessed = card2.isGuessed = true;
-            this.disableCardClick = false;
-          }, 2000);
-        } else {
-          setTimeout(() => {
-            card1.isPreviewed = card2.isPreviewed = false;
-            this.disableCardClick = false;
-          }, 2000);
-        }
-        this.previewIndexArray.length = 0;
-      }
+    start() {
+      this.disableCardClick = false;
+      this.timerEvent = 'start';
+      this.gameStarted = true;
     }
 
+    reset() {
+      this.timerEvent = 'reset';
+      this.cardsArray.forEach(item => {
+        item.isGuessed = false;
+        item.isPreviewed = false;
+      });
+      this.moves = 0;
+    }
 
+    onCardSelect(id: number) {
+      const cardIndex = this.cardsArray.findIndex(item => item.id === id);
+      this.previewIndexArray.push(cardIndex);
+
+      if (!this.cardsArray[cardIndex].isGuessed && !this.cardsArray[cardIndex].isPreviewed) {
+        this.cardsArray[cardIndex].isPreviewed = true;
+        if (this.previewIndexArray.length === 2) {
+          this.disableCardClick = true;
+          setTimeout(() => {
+            this.moves++;
+            const card1: CardItem = this.cardsArray[this.previewIndexArray[0]];
+            const card2: CardItem = this.cardsArray[this.previewIndexArray[1]];
+            if (card1.value === card2.value) {
+              card1.isGuessed = card2.isGuessed = true;
+              this.disableCardClick = false;
+              if (this.cardsArray.every(item => item.isGuessed)) {
+                window.alert('Congratulations, you win!');
+                this.timerEvent = 'stop';
+              }
+            } else {
+              card1.isPreviewed = card2.isPreviewed = false;
+              this.disableCardClick = false;
+            }
+            this.previewIndexArray.length = 0;
+          }, 1000);
+        }
+      }
+    }
   }
-}
 </script>
 
 <style lang="scss">
@@ -109,6 +121,25 @@ export default class App extends Vue {
   .controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+
+    &__item {
+      width: 100px;
+      text-align: center;
+      font-size: 20px;
+
+      &_btn {
+        height: 50px;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        transition-duration: 0.4s;
+        cursor: pointer;
+      }
+    }
   }
 
   .board {
@@ -118,10 +149,11 @@ export default class App extends Vue {
     justify-content: space-around;
     align-content: space-around;
     flex-wrap: wrap;
-    padding: 30px 0;
+    padding: 15px 0;
   }
 
   .disabled {
     pointer-events: none;
   }
+
 </style>
