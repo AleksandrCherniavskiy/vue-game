@@ -6,7 +6,8 @@
               v-if="!gameStarted">Start
       </button>
       <button class="controls__item controls__item_btn" @click="reset" v-else>Reset</button>
-      <Timer class="controls__item" :timerEvent="timerEvent"></Timer>
+      <Timer class="controls__item"
+             :timerEvent="timerEvent"></Timer>
     </div>
     <div class="board">
       <Card v-for="card in cardsArray"
@@ -34,7 +35,8 @@
   })
 
   export default class App extends Vue {
-    cardsArray: CardItem[] = [
+
+    private cardsArray: CardItem[] = [
       {id: 1, value: 1, isGuessed: false, isPreviewed: false},
       {id: 2, value: 2, isGuessed: false, isPreviewed: false},
       {id: 3, value: 3, isGuessed: false, isPreviewed: false},
@@ -69,12 +71,17 @@
     }
 
     reset() {
-      this.timerEvent = 'reset';
+      this.disableCardClick = false;
+      this.timerEvent = 'stop';
       this.cardsArray.forEach(item => {
         item.isGuessed = false;
         item.isPreviewed = false;
       });
       this.moves = 0;
+      setTimeout(() => {
+        this.timerEvent = 'start';
+      }, 0);
+
     }
 
     onCardSelect(id: number) {
@@ -95,6 +102,7 @@
               if (this.cardsArray.every(item => item.isGuessed)) {
                 window.alert('Congratulations, you win!');
                 this.timerEvent = 'stop';
+                this.disableCardClick = true;
               }
             } else {
               card1.isPreviewed = card2.isPreviewed = false;
